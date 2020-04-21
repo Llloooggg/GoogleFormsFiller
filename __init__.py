@@ -4,8 +4,18 @@ import requests
 import random
 import re
 import progressbar
+from os import path
 from bs4 import BeautifulSoup
 from datetime import datetime
+
+
+global banList
+banList = []
+if path.exists('./ban_list.txt'):
+    f = open('./ban_list.txt')
+    for line in f.readlines():
+        banList.append(line.lower())
+    f.close()
 
 
 def button_by_text(text):  # получение кнопки по тексту на ней
@@ -20,6 +30,8 @@ def button_by_text(text):  # получение кнопки по тексту �
 
 
 def get_profession():  # получение случайной профессии в РФ, где 1 и 2 диапазон - профессии рабочих, 2 и 3 - должности служащих
+
+    global banList
 
     coin = (1, 2, 3, 4)
     coin = random.choices(coin, [0.1, 0.1, 0.4, 0.4], k=1)[0]
@@ -40,9 +52,25 @@ def get_profession():  # получение случайной професси�
         try:
             profession = soup.findAll("div", {"class": "my_col2"})[1]
             profession = re.sub(r'\([^()]*\)', '', profession.get_text())
-            return profession
+
+            if not banList:
+                return profession
+            if not_in_ban_list(profession):
+                return profession
+
         except:
             pass
+
+
+def not_in_ban_list(word):
+
+    global banList
+
+    wordLowReg = word.lower()  # проверка на наличие слов из бан-листа
+    for badWord in banList:
+        if badWord in wordLowReg:
+            return False
+    return True
 
 
 def profile_maker():
@@ -127,14 +155,15 @@ def bulldozer():
 if __name__ == '__main__':
 
     url = 'https://docs.google.com/forms/d/1f716YOLUrKhtjTlR4hYiEWkgwjqylR5fCPxWsHQKJqY'
-    resnondents = int(input('Введите желаемое число респондентов: '))
+    # url = int(input('Введите ссылку на форму: '))
+    respondents = int(input('Введите желаемое число респондентов: '))
 
     options = webdriver.firefox.options.Options()
     options.headless = True
     driver = webdriver.Firefox(options=options)
 
-    with progressbar.ProgressBar(max_value=resnondents) as bar:
-        for i in range(resnondents):
+    with progressbar.ProgressBar(max_value=respondents) as bar:
+        for i in range(respondents):
             bar.update(i)
 
             driver.get(url)
