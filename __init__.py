@@ -81,10 +81,11 @@ def profile_maker():
             form.find_elements_by_class_name(
                 'quantumWizMenuPaperselectOption')[0].click()
             coin = random.randint(3, 24)
+            time.sleep(1)
             variants_list = form.find_element_by_xpath(
                 f'//*[@id="mG61Hd"]/div/div/div[2]/div[5]/div/div[2]/div[2]/div[{coin}]')  # перебор элементов выпадающего списка
             variants_list.click()
-            time.sleep(3)
+            time.sleep(1.5)
 
         elif header == 'Укажите Ваш стаж работы (полных лет) в указанной организации':
             buttons_list = form.find_elements_by_class_name(
@@ -128,24 +129,24 @@ if __name__ == '__main__':
     url = 'https://docs.google.com/forms/d/1f716YOLUrKhtjTlR4hYiEWkgwjqylR5fCPxWsHQKJqY'
     resnondents = int(input('Введите желаемое число респондентов: '))
 
-    driver = webdriver.Firefox()
+    options = webdriver.firefox.options.Options()
+    options.headless = True
+    driver = webdriver.Firefox(options=options)
 
     with progressbar.ProgressBar(max_value=resnondents) as bar:
         for i in range(resnondents):
-
             bar.update(i)
 
             driver.get(url)
 
             button_by_text('Далее')
-
             profile_maker()
 
             while True:
-
-            	if button_by_text('Далее'):
-	            	bulldozer()
-	           	else:
-	            	button_by_text('Отправить')
+                if button_by_text('Далее'):
+                    bulldozer()
+                else:
+                    button_by_text('Отправить')
+                    break
 
     driver.close()
