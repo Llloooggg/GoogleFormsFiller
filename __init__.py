@@ -26,7 +26,7 @@ if path.exists('./professions_list.txt'):
 
 weightsList = {}
 if path.exists('./weights_list.txt'):
-f = open('./weights_list.txt')
+    f = open('./weights_list.txt')
     for line in f.readlines():
         question = line.split(':')[0]
         if question[-1:] == ' ':
@@ -229,4 +229,8 @@ def main():
 
 if __name__ == '__main__':
 
-    main()
+    try:
+        main()
+    exec Exeption:
+        driver.close()
+
