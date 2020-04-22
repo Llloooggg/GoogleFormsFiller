@@ -180,7 +180,6 @@ def profile_maker():
             field = form.find_elements_by_class_name('quantumWizTextinputPapertextareaInput')[
                 0]  # получение полей для ввода с формы
             field.click()
-            # field.send_keys(random.choice(professionsList))
             profession = get_profession()
             field.send_keys(profession)
 
@@ -204,6 +203,103 @@ def profile_maker():
             profile['Стаж в текущей должности'] = buttons_list[coin].text
 
     log('Новорожденный', profile)
+
+
+def another_profile_maker():
+
+    global driver
+
+    forms_list = driver.find_elements_by_class_name(
+        'freebirdFormviewerViewItemsItemItem')  # получение форм со страницы
+
+    for form in forms_list:
+
+        header = form.find_element_by_class_name(
+            'freebirdFormviewerViewItemsItemItemHeader').text  # получение заголовка формы
+
+        if header[-1:] == '*':
+            header = header[:-2]
+
+        if header == 'Оцените свою удовлетворенность работой в команде группы разработчиков':
+            buttons_list = form.find_elements_by_class_name(
+                'appsMaterialWizToggleRadiogroupRadioButtonContainer')  # получение кнопок-радио с формы
+            button = random.choices(
+                buttons_list, [0, 0, 0.05, 0.07, 0.88], k=1)[0]
+            button.click()
+
+        elif header == 'Оцените свою готовность продолжать работу в своей команде':
+            buttons_list = form.find_elements_by_class_name(
+                'appsMaterialWizToggleRadiogroupRadioButtonContainer')  # получение кнопок-радио с формы
+            button = random.choices(
+                buttons_list, [0, 0, 0.01, 0.15, 0.84], k=1)[0]
+            button.click()
+
+        elif header == 'Укажите ваш стаж работы в IT-сфере':
+            buttons_list = form.find_elements_by_class_name(
+                'docssharedWizToggleLabeledLabelWrapper')  # получение кнопок-радио с формы
+            button = random.choices(
+                buttons_list, [0.1, 0.49, 0.36, 0.05], k=1)[0]
+            button.click()
+
+            seniority = button.text
+
+        elif header == 'Укажите занимаемую должность':
+            buttons_list = form.find_elements_by_class_name(
+                'appsMaterialWizToggleRadiogroupRadioButtonContainer')  # получение кнопок-радио с формы
+            button = random.choices(buttons_list, [0.72, 0.28], k=1)[0]
+            button.click()
+
+        elif header == 'В каком формате вы обычно работаете?':
+            buttons_list = form.find_elements_by_class_name(
+                'appsMaterialWizToggleRadiogroupRadioButtonContainer')  # получение кнопок-радио с формы
+            button = random.choices(buttons_list, [0.67, 0.31, 0.02], k=1)[0]
+            button.click()
+
+        elif header == 'Какой практикой (фреймворком) вы пользуетесь. Укажите 1-2 варианта':
+            buttons_list = form.find_elements_by_class_name(
+                'docssharedWizToggleLabeledContainer')  # получение чекбоксов с формы
+
+            coin = random.randint(1, 2)
+
+            for i in range(coin):
+                button = random.choices(
+                    buttons_list, [0.4, 0.3, 0.1, 0.1, 0.1], k=1)[0]
+            button.click()
+
+        elif header == 'Укажите ваш возраст':
+            ageRange_1 = (19, 24)
+            ageRange_2 = (25, 28)
+            ageRange_3 = (29, 44)
+
+            if seniority == 'меньше 1 года':
+                age = random.randint(ageRange_1[0], ageRange_1[1])
+            elif seniority == 'от 1 года до 5 лет':
+                pool = random.choices(
+                    [ageRange_2, ageRange_3], [0.9, 0.1], k=1)[0]
+                age = random.randint(pool[0], pool[1])
+            elif seniority == 'от 5 лет до 10 лет':
+                pool = random.choices(
+                    [ageRange_2, ageRange_3], [0.7, 0.3], k=1)[0]
+                age = random.randint(pool[0], pool[1])
+            else:
+                age = random.randint(ageRange_3[0], ageRange_3[1])
+
+            field = form.find_elements_by_class_name('quantumWizTextinputPaperinputInput')[
+                0]  # получение полей для ввода с формы
+            field.click()
+            field.send_keys(age)
+
+        elif header == 'Укажите ваш пол':
+            buttons_list = form.find_elements_by_class_name(
+                'docssharedWizToggleLabeledContainer')  # получение кнопок-радио с формы
+            button = random.choices(buttons_list, [0.63, 0.37], k=1)[0]
+            button.click()
+
+        elif header == 'Укажите регион, в котором проживаете на данный момент':
+            buttons_list = form.find_elements_by_class_name(
+                'appsMaterialWizToggleRadiogroupRadioButtonContainer')  # получение кнопок-радио с формы
+            button = random.choices(buttons_list, [0.4, 0.3, 0.2, 0.1], k=1)[0]
+            button.click()
 
 
 def smart_buildozer():
@@ -277,13 +373,30 @@ def main():
     print(datetime.now().strftime('[%X] ') + 'Завершено')
 
 
+def another_main():
+
+    global driver
+
+    url = 'https://docs.google.com/forms/d/e/1FAIpQLSeyfRwOKKsj7w7btlsH6qKhm6VtL0oprjUakUCkN8SPi_su4w/viewform'
+
+    respondents = int(input(datetime.now().strftime(
+        '[%X] ') + 'Введите желаемое число респондентов: '))
+
+    with progressbar.ProgressBar(max_value=respondents) as bar:
+        for i in range(respondents):
+            bar.update(i)
+
+            driver.get(url)
+
+            button_by_text('Далее')
+            another_profile_maker()
+            button_by_text('Отправить')
+
+
 if __name__ == '__main__':
 
-    '''
     try:
-        main()
+        another_main()
     except:
         driver.close()
-    '''
 
-    main()
