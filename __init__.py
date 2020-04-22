@@ -38,6 +38,7 @@ if path.exists('./weights_list.txt'):
         if question[-1:] == ' ':
             question = question[:-1]
         weights = line.split(':')[1].split()
+        weights = [float(num) for num in weights]
         weightsList[question] = weights
     f.close()
 
@@ -261,9 +262,8 @@ def another_profile_maker():
 
             coin = random.randint(1, 2)
 
-            for i in range(coin):
-                button = random.choices(
-                    buttons_list, [0.4, 0.3, 0.1, 0.1, 0.1], k=1)[0]
+            button = random.choices(
+                buttons_list, [0.4, 0.3, 0.1, 0.1, 0.1], k=coin)[0]
             button.click()
 
         elif header == 'Укажите ваш возраст':
@@ -304,7 +304,7 @@ def another_profile_maker():
 
 def smart_buildozer():
 
-    global driver
+    global driver, weightsList
 
     forms_list = driver.find_elements_by_class_name(
         'freebirdFormviewerViewItemsItemItem')  # получение форм со страницы
@@ -390,7 +390,12 @@ def another_main():
 
             driver.get(url)
 
-            button_by_text('Далее')
+            while True:
+                if button_by_text('Далее'):
+                    smart_buildozer()
+                else:
+                    break
+
             another_profile_maker()
             button_by_text('Отправить')
 
@@ -399,7 +404,4 @@ def another_main():
 
 if __name__ == '__main__':
 
-    try:
-        another_main()
-    except:
-        driver.close()
+    another_main()
