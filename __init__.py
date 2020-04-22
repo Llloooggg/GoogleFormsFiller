@@ -382,6 +382,8 @@ def another_main():
     respondents = int(input(datetime.now().strftime(
         '[%X] ') + 'Введите желаемое число респондентов: '))
 
+    print(datetime.now().strftime('[%X] ') + 'Начало')
+
     with progressbar.ProgressBar(max_value=respondents) as bar:
         for i in range(respondents):
             bar.update(i)
@@ -392,6 +394,8 @@ def another_main():
             another_profile_maker()
             button_by_text('Отправить')
 
+    print(datetime.now().strftime('[%X] ') + 'Завершено')
+
 
 if __name__ == '__main__':
 
@@ -399,4 +403,3 @@ if __name__ == '__main__':
         another_main()
     except:
         driver.close()
-
