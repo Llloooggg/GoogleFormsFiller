@@ -1,3 +1,5 @@
+#!venv/bin/python3
+
 from selenium import webdriver
 import time
 import requests
@@ -41,8 +43,8 @@ if path.exists('./weights_list.txt'):
 
 
 def log(header, data=None):
-    with open(logPath,'a') as f:
-        f.write(datetime.now().strftime('[%X] ') + header +'\n')
+    with open(logPath, 'a') as f:
+        f.write(datetime.now().strftime('[%X] ') + header + '\n')
         if data:
             for key, value in data.items():
                 f.write(f'           {key}: {value}\n')
@@ -187,7 +189,16 @@ def profile_maker():
         elif header == 'Укажите Ваш стаж работы в текущей должности (полных лет)':
             buttons_list = form.find_elements_by_class_name(
                 'docssharedWizToggleLabeledContainer')  # получение кнопок-радио с формы
-            coin = random.randint(0, len(buttons_list) - 1)
+
+            if profile['Стаж работы'] == 'Меньше 1 года':
+                max_variant = 0
+            elif profile['Стаж работы'] == 'От 1 года до 3 лет':
+                max_variant = 1
+            elif profile['Стаж работы'] == 'от 3 до 5 лет':
+                max_variant = 2
+            else:
+                max_variant = 3
+            coin = random.randint(0, max_variant)
             buttons_list[coin].click()
 
             profile['Стаж в текущей должности'] = buttons_list[coin].text
