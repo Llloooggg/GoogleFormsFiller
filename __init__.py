@@ -10,21 +10,19 @@ from os import path
 from bs4 import BeautifulSoup
 from datetime import datetime
 
-options = webdriver.firefox.options.Options()
-options.headless = True
-driver = webdriver.Firefox(options=options)
-
 logPath = './respondents.log'
 
 banList = []
 if path.exists('./ban_list.txt'):
+    print(datetime.now().strftime('[%X] ') + 'Обнаружен бан-лист')
     f = open('./ban_list.txt')
     for line in f.readlines():
-        banList.append(line.lower())
+        banList.append(line.rstrip('\r\n').lower())
     f.close()
 
 professionsList = []
 if path.exists('./professions_list.txt'):
+    print(datetime.now().strftime('[%X] ') + 'Обнаружен список профессий')
     f = open('./professions_list.txt')
     for line in f.readlines():
         banList.append(line.lower())
@@ -32,6 +30,7 @@ if path.exists('./professions_list.txt'):
 
 weightsList = {}
 if path.exists('./weights_list.txt'):
+    print(datetime.now().strftime('[%X] ') + 'Обнаружены веса')
     f = open('./weights_list.txt')
     for line in f.readlines():
         question = line.split(':')[0]
@@ -107,6 +106,7 @@ def not_in_ban_list(word):
     return True
 
 
+
 def profile_maker():
 
     global driver
@@ -152,7 +152,7 @@ def profile_maker():
             form.find_elements_by_class_name(
                 'quantumWizMenuPaperselectOption')[0].click()
             coin = random.randint(3, 24)
-            time.sleep(0.5)
+            time.sleep(1)
             variant = form.find_element_by_xpath(
                 f'/html/body/div/div[2]/form/div/div/div[2]/div[5]/div/div[2]/div[2]/div[{coin}]')  # перебор элементов выпадающего списка
 
@@ -302,7 +302,7 @@ def another_profile_maker():
             button.click()
 
 
-def smart_buildozer():
+def buildozer():
 
     global driver, weightsList
 
@@ -316,32 +316,17 @@ def smart_buildozer():
 
         buttons_list = form.find_elements_by_class_name(
             'appsMaterialWizToggleRadiogroupRadioButtonContainer')  # получение кнопок-радио с формы
-        button = random.choices(buttons_list, weightsList[header], k=1)[0]
-        button.click()
-
-
-def bulldozer():
-
-    global driver
-
-    forms_list = driver.find_elements_by_class_name(
-        'freebirdFormviewerViewItemsItemItem')  # получение форм со страницы
-    for form in forms_list:
-        header = form.find_element_by_class_name(
-            'freebirdFormviewerViewItemsItemItemHeader').text  # получение заголовка формы
-        if header[-1:] == '*':
-            header = header[:-2]
-
-        buttons_list = form.find_elements_by_class_name(
-            'appsMaterialWizToggleRadiogroupRadioButtonContainer')  # получение кнопок-радио с формы
-        buttons_list[random.randint(0, len(buttons_list) - 1)].click()
+        if weightsList:
+            button = random.choices(buttons_list, weightsList[header], k=1)[0].click()
+        else:
+            buttons_list[random.randint(0, len(buttons_list) - 1)].click()
 
 
 def main():
 
     global driver
 
-    url = 'https://docs.google.com/forms/d/1f716YOLUrKhtjTlR4hYiEWkgwjqylR5fCPxWsHQKJqY'
+    url = 'https://docs.google.com/forms/d/1f716YOLUrKhtjTlR4hYiEWkgwjqylR5fCPxWsHQKJqY/viewform'
     # url = int(input('Введите ссылку на форму: '))
     respondents = int(input(datetime.now().strftime(
         '[%X] ') + 'Введите желаемое число респондентов: '))
@@ -352,6 +337,11 @@ def main():
 
     with progressbar.ProgressBar(max_value=respondents) as bar:
         for i in range(respondents):
+
+            options = webdriver.firefox.options.Options()
+            options.headless = True
+            driver = webdriver.Firefox(options=options)
+
             bar.update(i)
 
             driver.get(url)
@@ -361,15 +351,16 @@ def main():
 
             while True:
                 if button_by_text('Далее'):
-                    bulldozer()
+                    buildozer()
                 else:
                     button_by_text('Отправить')
                     break
 
             log('Опрошен')
 
-    driver.close()
+            driver.quit()
 
+    log('Опрос завершен')
     print(datetime.now().strftime('[%X] ') + 'Завершено')
 
 
@@ -386,22 +377,33 @@ def another_main():
 
     with progressbar.ProgressBar(max_value=respondents) as bar:
         for i in range(respondents):
+
+            options = webdriver.firefox.options.Options()
+            options.headless = True
+            driver = webdriver.Firefox(options=options)
+
             bar.update(i)
 
             driver.get(url)
 
-            while True:
-                if button_by_text('Далее'):
-                    smart_buildozer()
-                else:
-                    break
+            button_by_text('Далее')
+
+            for i in range(3):
+                try:
+                    buildozer()
+                except:
+                    pass
+                button_by_text('Далее')
+
 
             another_profile_maker()
             button_by_text('Отправить')
+
+            driver.quit()
 
     print(datetime.now().strftime('[%X] ') + 'Завершено')
 
 
 if __name__ == '__main__':
 
-    another_main()
+    main()
